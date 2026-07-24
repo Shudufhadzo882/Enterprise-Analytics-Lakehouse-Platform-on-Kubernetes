@@ -6,7 +6,7 @@ Production-ready Cloud-Native Lakehouse architecture designed for modern data en
 
 ## 🏗 Architecture Diagram
 
-```
+```text
 [ Git Push / PR ] ──► [ GitHub Actions CI/CD ]
                              │
                              ├──► 1. Terraform Plan/Apply (EKS, S3, Snowflake/Redshift)
@@ -49,7 +49,7 @@ Production-ready Cloud-Native Lakehouse architecture designed for modern data en
 
 ## 📂 Project Repository Structure
 
-```
+```text
 ├── .github/
 │   └── workflows/
 │       └── ci-cd.yml                # Automated Terraform, Docker Build/Push, and EKS Deploy
@@ -97,12 +97,14 @@ Production-ready Cloud-Native Lakehouse architecture designed for modern data en
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
+
 - **Terraform** >= 1.5.0
 - **AWS CLI v2** configured with proper IAM privileges
 - **Docker Desktop**
 - **kubectl** & **Helm**
 
 ### 1. Provision AWS Infrastructure with Terraform
+
 ```bash
 cd terraform
 terraform init
@@ -111,11 +113,13 @@ terraform apply -auto-approve
 ```
 
 ### 2. Configure Local Kubernetes Access (`kubectl`)
+
 ```bash
 aws eks update-kubeconfig --name eal-k8s-cluster --region us-east-1
 ```
 
 ### 3. Build & Push Docker Images
+
 ```bash
 # Build PySpark container
 make docker-build-pyspark
@@ -125,6 +129,7 @@ make docker-build-dbt
 ```
 
 ### 4. Deploy Apache Airflow & Spark Operator to EKS
+
 ```bash
 # Install Spark Operator via Helm
 helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator
@@ -140,12 +145,15 @@ kubectl apply -f k8s/dbt/dbt-job.yaml
 ## 🧪 Local Testing & Verification
 
 Run PySpark ETL locally:
+
 ```bash
 make run-pyspark-local
 ```
 
 Run dbt models and data assertions locally:
+
 ```bash
 make dbt-run
 make dbt-test
 ```
+

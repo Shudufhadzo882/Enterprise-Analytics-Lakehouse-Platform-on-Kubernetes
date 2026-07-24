@@ -19,7 +19,7 @@ jobs:
         working-directory: terraform
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -39,12 +39,15 @@ jobs:
     name: Build & Push Docker Images to ECR
     needs: terraform-ci
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AWS_ACCESS_KEY_ID != ''
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
+        if: env.AWS_ACCESS_KEY_ID != ''
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -52,10 +55,12 @@ jobs:
           aws-region: us-east-1
 
       - name: Log in to Amazon ECR
+        if: env.AWS_ACCESS_KEY_ID != ''
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build & Push PySpark Image
+        if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           IMAGE_TAG=${{ github.sha }}
           ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
@@ -65,6 +70,7 @@ jobs:
           docker push $ECR_REGISTRY/eal-k8s-pyspark:latest
 
       - name: Build & Push dbt Image
+        if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           IMAGE_TAG=${{ github.sha }}
           ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
@@ -77,12 +83,15 @@ jobs:
     name: Deploy Helm & Kubernetes Manifests to EKS
     needs: docker-build-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AWS_ACCESS_KEY_ID != ''
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
+        if: env.AWS_ACCESS_KEY_ID != ''
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -90,10 +99,12 @@ jobs:
           aws-region: us-east-1
 
       - name: Update Kubeconfig
+        if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           aws eks update-kubeconfig --name eal-k8s-cluster --region us-east-1
 
       - name: Deploy Spark & dbt Manifests
+        if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           kubectl apply -f k8s/spark-operator/spark-application.yaml
           kubectl apply -f k8s/dbt/dbt-job.yaml

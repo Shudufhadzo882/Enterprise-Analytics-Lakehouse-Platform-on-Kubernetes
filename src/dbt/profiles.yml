@@ -1,0 +1,28 @@
+eal_k8s_profile:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: 'gold_warehouse.duckdb'
+      threads: 4
+
+    snowflake:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT', 'xy12345.us-east-1') }}"
+      user: "{{ env_var('SNOWFLAKE_USER', 'dbt_user') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD', 'dbt_password') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE', 'GOLD_DW') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}"
+      schema: "{{ env_var('SNOWFLAKE_SCHEMA', 'PUBLIC') }}"
+      threads: 8
+
+    redshift:
+      type: redshift
+      host: "{{ env_var('REDSHIFT_HOST', 'localhost') }}"
+      user: "{{ env_var('REDSHIFT_USER', 'awsuser') }}"
+      password: "{{ env_var('REDSHIFT_PASSWORD', 'password') }}"
+      port: 5439
+      dbname: "{{ env_var('REDSHIFT_DB', 'dev') }}"
+      schema: "{{ env_var('REDSHIFT_SCHEMA', 'gold') }}"
+      threads: 4

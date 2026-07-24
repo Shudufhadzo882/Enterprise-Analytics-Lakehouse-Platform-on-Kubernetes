@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dbt-gold-transformations
+  namespace: analytics
+spec:
+  template:
+    spec:
+      serviceAccountName: spark-sa
+      containers:
+      - name: dbt
+        image: eal-k8s/dbt-transformations:latest
+        imagePullPolicy: Always
+        command: ["dbt", "run", "--profiles-dir", "/usr/app/dbt"]
+        env:
+        - name: SNOWFLAKE_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              name: dw-credentials
+              key: SNOWFLAKE_ACCOUNT
+        - name: SNOWFLAKE_USER
+          valueFrom:
+            secretKeyRef:
+              name: dw-credentials
+              key: SNOWFLAKE_USER
+        - name: SNOWFLAKE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dw-credentials
+              key: SNOWFLAKE_PASSWORD
+      restartPolicy: Never
+  backoffLimit: 2

@@ -1,0 +1,23 @@
+# Helm Values for Apache Airflow Deployment on EKS
+executor: "KubernetesExecutor"
+
+serviceAccount:
+  create: true
+  name: airflow-sa
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/eal-k8s-cluster-airflow-sa-role"
+
+webserver:
+  service:
+    type: ClusterIP
+  replicas: 2
+
+scheduler:
+  replicas: 1
+
+dags:
+  gitSync:
+    enabled: true
+    repo: "https://github.com/your-org/eal-k8s-lakehouse.git"
+    branch: "main"
+    subPath: "orchestration/dags"

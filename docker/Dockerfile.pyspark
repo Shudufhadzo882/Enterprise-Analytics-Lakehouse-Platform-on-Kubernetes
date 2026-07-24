@@ -1,0 +1,16 @@
+FROM spark:3.5.0-python3
+
+USER root
+
+# Install AWS S3A & Hadoop AWS connector JARs
+RUN mkdir -p /opt/spark/jars && \
+    curl -o /opt/spark/jars/hadoop-aws-3.3.4.jar https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar && \
+    curl -o /opt/spark/jars/aws-java-sdk-bundle-1.12.261.jar https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.261/aws-java-sdk-bundle-1.12.261.jar
+
+WORKDIR /opt/spark/work-dir
+
+COPY src/pyspark/ /opt/spark/work-dir/
+
+ENV PYTHONPATH="/opt/spark/work-dir:${PYTHONPATH}"
+
+USER spark

@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: silver_layer
+    description: "Parquet tables populated by PySpark in S3 Silver Bucket"
+    tables:
+      - name: nyc_trips
+        description: "Cleaned NYC TLC Trip data"
+
+models:
+  - name: stg_nyc_trips
+    description: "Staging table for NYC TLC trips with surrogate key"
+    columns:
+      - name: trip_id
+        description: "Primary key hashed from vendor, pickup time, and location"
+        tests:
+          - not_null
+      - name: trip_distance
+        tests:
+          - not_null
+
+  - name: fct_trips
+    description: "Fact table containing enriched trip transactions"
+    columns:
+      - name: trip_id
+        tests:
+          - not_null
+          - unique
+
+  - name: mart_monthly_revenue
+    description: "Gold mart for monthly aggregated revenue per vendor"
+    columns:
+      - name: gross_revenue
+        tests:
+          - not_null

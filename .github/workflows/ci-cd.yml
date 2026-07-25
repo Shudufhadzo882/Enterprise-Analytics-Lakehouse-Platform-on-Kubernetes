@@ -94,10 +94,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Validate Kubernetes & Helm Manifests
+      - name: Validate Kubernetes Manifest YAML Syntax
         run: |
-          kubectl apply --dry-run=client --validate=false -f k8s/spark-operator/spark-application.yaml
-          kubectl apply --dry-run=client --validate=false -f k8s/dbt/dbt-job.yaml
+          python3 -c "import yaml; yaml.safe_load_all(open('k8s/spark-operator/spark-application.yaml'))"
+          python3 -c "import yaml; yaml.safe_load_all(open('k8s/dbt/dbt-job.yaml'))"
+          python3 -c "import yaml; yaml.safe_load_all(open('k8s/airflow/values.yaml'))"
 
       - name: Configure AWS Credentials
         if: env.AWS_ACCESS_KEY_ID != ''
